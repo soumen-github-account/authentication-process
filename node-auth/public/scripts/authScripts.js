@@ -38,7 +38,6 @@ if(loginForm){
         const password = document.getElementById("password")?.value;
 
         console.log(userName, password);
-        
 
         const res = await fetch("/auth/login", {
             method: "POST",

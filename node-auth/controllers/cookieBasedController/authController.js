@@ -1,5 +1,5 @@
-import bcrypt from "bcryptjs"
 import UserModel from "../../models/UserModel.js"
+import bcrypt from "bcryptjs"
 import { generateToken } from "../../util/generateToken.js"
 
 export const register = async(req, res)=>{
@@ -53,10 +53,17 @@ export const login = async(req, res) => {
 
         const token = generateToken(existUser._id)
 
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "Lax",
+            maxAge: 24 * 60 * 60 * 1000 
+        });
+
         res.json({
             success: true,
             message: "Login successfully",
-            token
+            user: existUser
         })
 
     } catch (error) {

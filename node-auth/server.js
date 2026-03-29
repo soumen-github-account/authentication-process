@@ -3,7 +3,12 @@
 import express from 'express'
 import { connectDb } from './config/db.js';
 import 'dotenv/config'
-import authRouter from "./routes/authRoute.js"
+import authRouter from "./routes/sessionRoutes/authRoute.js"
+import tokenRouter from "./routes/tokenRoutes/authRoute.js";
+import cookieRouter from "./routes/cookieRoutes/authRoute.js"
+import jwtRouter from "./routes/jwtRoutes/authRoute.js"
+
+import cookieParser from 'cookie-parser';
 import session from "express-session"
 import MongoStore from "connect-mongo"
 
@@ -13,16 +18,29 @@ const port = 8000;
 
 connectDb()
 app.use(express.json())
+app.use(cookieParser())
+// app.use(
+//     session({
+//         secret: "secretkey",
+//         resave: false,
+//         saveUninitialized: false,
+//         store: MongoStore.create({
+//             mongoUrl: process.env.MONGODB_URI
+//         }),
+//         cookie: {maxAge: 1000 * 60 * 60}
+//     })
+// )
 
 app.use(
     session({
-        secret: "secretkey",
+        secret: "supersecretkey",
         resave: false,
         saveUninitialized: false,
-        store: MongoStore.create({
-            mongoUrl: process.env.MONGODB_URI
-        }),
-        cookie: {maxAge: 1000 * 60 * 60}
+        cookie: {
+            secure: true,
+            sameSite: "Lax",
+            httpOnly: true
+        },
     })
 )
 
@@ -37,8 +55,10 @@ app.get('/', (req, res)=>{
 app.get('/login', (req, res) => {
     res.render("authView/login")
 })
-app.use("/auth", authRouter);
-
+app.use("/session", authRouter);
+app.use("/token", tokenRouter);
+app.use("/cookie", cookieRouter);
+app.use("/jwt", jwtRouter);
 
 
 app.listen(port, ()=>{
